@@ -1,5 +1,6 @@
 import axios from "axios";
 import { keycloak } from "./auth";
+import { Severity } from "./theme";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000",
@@ -31,9 +32,34 @@ export interface Finding {
   remediation: string;
 }
 
+export interface TopologyNode {
+  id: string;
+  type: "device" | "interface" | "subnet" | "public_ip";
+  label: string;
+  severity?: Severity;
+  zone?: string | null;
+  vendor?: string;
+  device_type?: string;
+  ip_address?: string | null;
+  subnet_mask?: string | null;
+  isp?: string | null;
+  asn?: string | null;
+  country?: string | null;
+  confidence?: string | null;
+}
+
 export interface TopologyGraph {
-  nodes: Array<Record<string, unknown> & { id: string; type: string; label: string }>;
-  edges: Array<{ source: string; target: string }>;
+  nodes: TopologyNode[];
+  edges: Array<{ source: string; target: string; severity?: Severity }>;
+}
+
+export interface StatsSummary {
+  total_jobs: number;
+  jobs_by_status: Record<string, number>;
+  severity_counts: Record<Severity, number>;
+  total_findings: number;
+  risk_score: number;
+  trend: Array<{ date: string; jobs: number }>;
 }
 
 export interface CustomRule {
@@ -54,6 +80,10 @@ export const adminApi = {
   listCustomRules: () => api.get<CustomRule[]>("/admin/custom-rules").then((r) => r.data),
   createCustomRule: (rule: CustomRuleInput) => api.post<CustomRule>("/admin/custom-rules", rule).then((r) => r.data),
   deleteCustomRule: (id: string) => api.delete(`/admin/custom-rules/${id}`),
+};
+
+export const statsApi = {
+  summary: () => api.get<StatsSummary>("/stats/summary").then((r) => r.data),
 };
 
 export const jobsApi = {
