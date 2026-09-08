@@ -12,18 +12,20 @@ SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
 def build_topology(
     model: NetworkModel,
     ip_enrichment: dict[str, dict] | None = None,
-    severity_by_device: dict[str, str] | None = None,
+    device_summary: dict[str, dict] | None = None,
 ) -> dict:
     """Build a nodes/edges graph describing devices, their interfaces/subnets, and public IPs.
 
+    `device_summary` maps device name -> {"severity": str, "count": int} from findings.
     Returns a JSON-serializable dict consumable directly by the frontend graph component.
     """
     ip_enrichment = ip_enrichment or {}
-    severity_by_device = severity_by_device or {}
+    device_summary = device_summary or {}
     graph = nx.Graph()
 
     for device in model.devices:
-        device_severity = severity_by_device.get(device.name, "info")
+        summary = device_summary.get(device.name, {})
+        device_severity = summary.get("severity", "info")
         graph.add_node(
             f"device:{device.name}",
             type="device",
@@ -31,6 +33,10 @@ def build_topology(
             vendor=device.vendor,
             device_type=device.device_type,
             severity=device_severity,
+            finding_count=summary.get("count", 0),
+            severity_breakdown=summary.get("by_severity", {}),
+            interface_count=len(device.interfaces),
+            rule_count=len(device.rules),
         )
 
         for iface in device.interfaces:

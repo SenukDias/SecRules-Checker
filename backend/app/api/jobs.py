@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth import ROLE_ADMIN, CurrentUser, get_current_user
+from app.config import get_settings
 from app.db import get_db
 from app.models.db_models import Job
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
+settings = get_settings()
 
 
 def _visible_jobs(db: Session, user: CurrentUser):
@@ -54,3 +58,13 @@ def get_job(job_id: str, db: Session = Depends(get_db), user: CurrentUser = Depe
         "created_at": job.created_at,
         "updated_at": job.updated_at,
     }
+
+
+@router.delete("/{job_id}", status_code=204)
+def delete_job(job_id: str, db: Session = Depends(get_db), user: CurrentUser = Depends(get_current_user)):
+    job = _get_job_or_404(db, user, job_id)
+    upload_path = os.path.join(settings.upload_dir, f"{job.id}_{job.filename}")
+    if os.path.exists(upload_path):
+        os.remove(upload_path)
+    db.delete(job)  # findings cascade via the Job.findings relationship
+    db.commit()

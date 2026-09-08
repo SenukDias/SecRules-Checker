@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Finding, JobSummary, TopologyGraph as TopologyData, jobsApi } from "../lib/api";
-import TopologyGraph from "../components/TopologyGraph";
+import IsoflowTopology from "../components/IsoflowTopology";
 import FindingsTable from "../components/FindingsTable";
 
 type Tab = "topology" | "findings";
@@ -92,7 +92,7 @@ export default function JobDetail() {
         ))}
       </div>
 
-      {tab === "topology" && topology && <TopologyGraph data={topology} />}
+      {tab === "topology" && topology && <IsoflowTopology data={topology} />}
       {tab === "findings" && <FindingsTable findings={findings} />}
     </div>
   );

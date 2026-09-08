@@ -1,0 +1,16 @@
+hostname FW01
+!
+interface GigabitEthernet0/0
+ nameif outside
+ security-level 0
+ ip address 203.0.113.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+ nameif inside
+ security-level 100
+ ip address 10.0.0.1 255.255.255.0
+!
+access-list OUTSIDE_IN extended permit tcp any host 10.0.0.5 eq 3389
+access-list OUTSIDE_IN extended permit tcp any host 10.0.0.6 eq 23
+access-list OUTSIDE_IN extended permit ip any any
+access-list INSIDE_OUT extended permit tcp host 10.0.0.20 host 8.8.8.8 eq 443 log

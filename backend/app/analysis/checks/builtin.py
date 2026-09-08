@@ -17,6 +17,8 @@ INSECURE_SERVICES = {
     "snmp": "SNMP (check for v1/v2c community strings)",
     "udp/161": "SNMP (check for v1/v2c community strings)",
     "rsh": "RSH (unauthenticated remote shell)",
+    "ssh-root-login": "SSH direct root login allowed (bypasses per-user accountability)",
+    "type7-password": "Cisco Type 7 password encryption (trivially reversible, not a secure hash)",
 }
 
 SENSITIVE_MGMT_PORTS = {

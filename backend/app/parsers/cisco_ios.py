@@ -13,6 +13,8 @@ _ACL_RE = re.compile(
 _IFACE_RE = re.compile(r"^interface\s+(?P<name>\S+)", re.IGNORECASE)
 _IPADDR_RE = re.compile(r"^\s*ip address\s+(?P<ip>\d+\.\d+\.\d+\.\d+)\s+(?P<mask>\d+\.\d+\.\d+\.\d+)", re.IGNORECASE)
 _HOSTNAME_RE = re.compile(r"^hostname\s+(?P<name>\S+)", re.IGNORECASE)
+_IP_HTTP_SERVER_RE = re.compile(r"^ip\s+http\s+server\s*$", re.IGNORECASE | re.MULTILINE)
+_TYPE7_PASSWORD_RE = re.compile(r"^\s*password\s+7\s+\S+", re.IGNORECASE | re.MULTILINE)
 
 
 class CiscoIOSParser(BaseParser):
@@ -20,7 +22,13 @@ class CiscoIOSParser(BaseParser):
 
     @classmethod
     def detect(cls, raw_text: str, filename: str) -> bool:
-        return bool(re.search(r"^access-list\s+\d+\s+(permit|deny)", raw_text, re.IGNORECASE | re.MULTILINE))
+        if re.search(r"^access-list\s+\d+\s+(permit|deny)", raw_text, re.IGNORECASE | re.MULTILINE):
+            return True
+        # Router/switch configs with no ACLs at all still need parsing (interfaces, routes,
+        # weak mgmt settings) - detect via classic IOS-only markers instead.
+        has_iface = re.search(r"^interface\s+\S+", raw_text, re.IGNORECASE | re.MULTILINE)
+        has_ios_marker = re.search(r"^(boot-start-marker|service password-encryption|line vty)", raw_text, re.IGNORECASE | re.MULTILINE)
+        return bool(has_iface and has_ios_marker)
 
     def parse(self, raw_text: str, filename: str) -> NetworkModel:
         lines = raw_text.splitlines()
@@ -66,6 +74,37 @@ class CiscoIOSParser(BaseParser):
 
         if current_iface:
             interfaces.append(_flush_iface(current_iface))
+
+        if _IP_HTTP_SERVER_RE.search(raw_text):
+            position = len(rules) + 1
+            rules.append(
+                Rule(
+                    id="mgmt-http",
+                    position=position,
+                    name="HTTP-Management-Access",
+                    action=RuleAction.ALLOW,
+                    source=["any"],
+                    destination=["device"],
+                    services=["http"],
+                    logging_enabled=False,
+                    description="Unencrypted HTTP web management (ip http server) is enabled.",
+                )
+            )
+        if _TYPE7_PASSWORD_RE.search(raw_text):
+            position = len(rules) + 1
+            rules.append(
+                Rule(
+                    id="weak-type7-password",
+                    position=position,
+                    name="Type-7-Password",
+                    action=RuleAction.ALLOW,
+                    source=["any"],
+                    destination=["device"],
+                    services=["type7-password"],
+                    logging_enabled=False,
+                    description="A line/enable password uses reversible Cisco Type 7 encryption.",
+                )
+            )
 
         device = Device(
             name=hostname,

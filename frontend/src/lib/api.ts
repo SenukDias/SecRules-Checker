@@ -46,6 +46,10 @@ export interface TopologyNode {
   asn?: string | null;
   country?: string | null;
   confidence?: string | null;
+  finding_count?: number;
+  severity_breakdown?: Partial<Record<Severity, number>>;
+  interface_count?: number;
+  rule_count?: number;
 }
 
 export interface TopologyGraph {
@@ -89,6 +93,7 @@ export const statsApi = {
 export const jobsApi = {
   list: () => api.get<JobSummary[]>("/jobs").then((r) => r.data),
   get: (id: string) => api.get<JobSummary>(`/jobs/${id}`).then((r) => r.data),
+  remove: (id: string) => api.delete(`/jobs/${id}`),
   upload: (file: File) => {
     const form = new FormData();
     form.append("file", file);

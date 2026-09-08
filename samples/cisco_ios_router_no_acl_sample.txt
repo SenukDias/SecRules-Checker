@@ -1,0 +1,184 @@
+Current configuration : 3848 bytes
+!
+! Last configuration change at 09:38:12 UTC Fri Aug 14 2026 by root
+! NVRAM config last updated at 09:37:58 UTC Fri Aug 14 2026 by root
+!
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+no platform punt-keepalive disable-kernel-core
+platform hardware throughput level 300000
+!
+hostname CONSOLE-RTR-BKP
+!
+boot-start-marker
+boot-end-marker
+!
+!
+vrf definition Mgmt-intf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+!
+aaa new-model
+!
+!
+!
+aaa common-criteria policy IPVPN-RTR-Policy
+ min-length 8
+ max-length 18
+ special-case 1
+ char-changes 4
+!
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+no ip bootp server
+
+no ip domain lookup
+ip domain name hnba.int
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+multilink bundle-name authenticated
+!
+!
+!
+!
+license udi pid ISR4331/K9 sn FDO2104086A
+license accept end user agreement
+!
+spanning-tree extend system-id
+!
+username root privilege 15 secret 5 $1$qUnJ$Xa6sOz2uUha9PNcp6yDD7.
+!
+redundancy
+ mode none
+!
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0/0
+ ip address 192.168.150.251 255.255.255.0
+ negotiation auto
+!
+interface GigabitEthernet0/0/1
+ ip address 172.25.116.142 255.255.255.252
+ negotiation auto
+!
+interface GigabitEthernet0/0/2
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet0
+ vrf forwarding Mgmt-intf
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+ip tftp source-interface GigabitEthernet0
+ip route 0.0.0.0 0.0.0.0 192.168.150.254
+ip route 10.8.52.0 255.255.255.0 10.100.21.252
+ip route 10.20.10.0 255.255.255.0 172.25.116.141
+ip route 10.30.10.0 255.255.255.0 10.100.200.253
+ip route 10.100.0.0 255.255.0.0 172.25.116.141
+ip route 10.108.0.0 255.255.255.0 192.168.150.254
+ip route 10.162.209.0 255.255.255.0 192.168.150.254
+ip route 10.162.209.2 255.255.255.255 192.168.150.1
+ip route 10.162.209.3 255.255.255.255 192.168.150.1
+ip route 10.162.224.0 255.255.255.0 192.168.150.1
+ip route 10.212.100.0 255.255.254.0 192.168.150.254
+ip route 10.212.112.0 255.255.255.0 192.168.150.254
+ip route 10.212.113.0 255.255.255.0 192.168.150.254
+ip route 10.221.158.0 255.255.255.0 192.168.150.254
+ip route 10.221.159.0 255.255.255.0 192.168.150.254
+ip route 10.223.210.0 255.255.255.0 192.168.150.254
+ip route 10.223.211.0 255.255.255.0 192.168.150.254
+ip route 100.74.84.0 255.255.255.0 192.168.150.254
+ip route 100.74.94.0 255.255.255.0 192.168.150.254
+ip route 172.16.1.0 255.255.255.0 192.168.150.254
+ip route 172.16.2.0 255.255.255.0 192.168.150.254
+ip route 172.16.3.0 255.255.255.0 192.168.150.254
+ip route 172.16.4.0 255.255.255.0 192.168.150.254
+ip route 172.16.5.0 255.255.255.0 192.168.150.254
+ip route 172.16.6.0 255.255.255.0 192.168.150.254
+ip route 172.25.119.208 255.255.255.252 172.25.116.141
+ip route 192.168.0.0 255.255.255.0 192.168.150.254
+ip route 192.168.10.0 255.255.255.0 192.168.150.254
+ip route 192.168.30.0 255.255.255.0 192.168.150.254
+ip route 192.168.40.0 255.255.255.0 192.168.150.254
+ip route 192.168.45.0 255.255.255.0 172.25.116.141
+ip route 192.168.55.0 255.255.255.248 172.25.116.141
+ip route 192.168.130.0 255.255.255.0 192.168.150.254
+ip route 192.168.140.0 255.255.255.0 192.168.150.254
+ip route 192.168.192.0 255.255.240.0 192.168.150.254
+ip route 192.168.200.0 255.255.255.248 172.25.116.141
+ip route 192.168.250.0 255.255.255.0 192.168.150.254
+ip route 192.168.254.0 255.255.255.0 192.168.150.254
+ip route 220.247.217.128 255.255.255.248 192.168.150.254
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ password 7 0479020901286F0A59014140455D5B576B0B
+ stopbits 1
+line aux 0
+ stopbits 1
+line vty 0 4
+ transport input ssh
+!
+ntp server 192.168.150.254
+!
+end
+
+CONSOLE-RTR-BKP#

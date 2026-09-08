@@ -7,6 +7,12 @@ body {
   min-height: 100vh;
 }
 
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
 .badge {
   @apply inline-block rounded-full px-2 py-0.5 text-xs font-semibold;
 }

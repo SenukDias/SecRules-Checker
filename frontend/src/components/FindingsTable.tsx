@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Finding } from "../lib/api";
+import SeverityBadge from "./SeverityBadge";
+import { SEVERITY_COLOR, Severity } from "../lib/theme";
 
 const SEVERITIES: Finding["severity"][] = ["critical", "high", "medium", "low", "info"];
 
@@ -9,9 +11,11 @@ export default function FindingsTable({ findings }: { findings: Finding[] }) {
 
   return (
     <div className="card">
-      <div className="flex gap-2 p-4 border-b border-rulescope-border flex-wrap">
+      <div className="flex gap-2 p-4 border-b border-rulescope-border flex-wrap items-center">
         <button
-          className={`badge ${filter === "all" ? "bg-rulescope-orange text-white" : "bg-rulescope-surfaceAlt"}`}
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+            filter === "all" ? "bg-rulescope-orange text-white" : "bg-rulescope-surfaceAlt text-rulescope-muted"
+          }`}
           onClick={() => setFilter("all")}
         >
           All ({findings.length})
@@ -19,10 +23,10 @@ export default function FindingsTable({ findings }: { findings: Finding[] }) {
         {SEVERITIES.map((sev) => (
           <button
             key={sev}
-            className={`badge badge-${sev} ${filter === sev ? "ring-2 ring-white" : "opacity-80"}`}
             onClick={() => setFilter(sev)}
+            className={filter === sev ? "ring-2 ring-white/60 rounded-full" : "opacity-70 hover:opacity-100"}
           >
-            {sev} ({findings.filter((f) => f.severity === sev).length})
+            <SeverityBadge severity={sev} count={findings.filter((f) => f.severity === sev).length} />
           </button>
         ))}
       </div>
@@ -39,9 +43,9 @@ export default function FindingsTable({ findings }: { findings: Finding[] }) {
         </thead>
         <tbody className="divide-y divide-rulescope-border">
           {visible.map((f) => (
-            <tr key={f.id}>
+            <tr key={f.id} style={{ borderLeft: `3px solid ${SEVERITY_COLOR[f.severity as Severity]}` }}>
               <td className="p-3">
-                <span className={`badge badge-${f.severity}`}>{f.severity}</span>
+                <SeverityBadge severity={f.severity} />
               </td>
               <td className="p-3">{f.category}</td>
               <td className="p-3">{f.device_name}</td>

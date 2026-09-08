@@ -15,12 +15,18 @@ from app.topology import build_topology
 SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
 
 
-def _max_severity_by_device(findings: list[Finding]) -> dict[str, str]:
-    result: dict[str, str] = {}
+def _device_summary(findings: list[Finding]) -> dict[str, dict]:
+    """Per-device max severity, total finding count, and per-severity breakdown for topology node badges/panels."""
+    result: dict[str, dict] = {}
     for f in findings:
-        current = result.get(f.device_name, "info")
-        if SEVERITY_RANK.get(f.severity, 0) > SEVERITY_RANK.get(current, 0):
-            result[f.device_name] = f.severity
+        entry = result.setdefault(
+            f.device_name,
+            {"severity": "info", "count": 0, "by_severity": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}},
+        )
+        entry["count"] += 1
+        entry["by_severity"][f.severity] = entry["by_severity"].get(f.severity, 0) + 1
+        if SEVERITY_RANK.get(f.severity, 0) > SEVERITY_RANK.get(entry["severity"], 0):
+            entry["severity"] = f.severity
     return result
 
 
@@ -66,11 +72,11 @@ def process_job(job_id: str, upload_path: str) -> None:
         db.commit()
 
         findings = analyze(model, db, job_id)
-        severity_by_device = _max_severity_by_device(findings)
+        device_summary = _device_summary(findings)
 
         public_ips = model.all_public_ips()
         enrichment = _run_async(enrich_ips(public_ips)) if public_ips else {}
-        job.topology = build_topology(model, enrichment, severity_by_device)
+        job.topology = build_topology(model, enrichment, device_summary)
 
         job.status = "done"
         db.commit()

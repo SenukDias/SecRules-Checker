@@ -1,0 +1,332 @@
+login as: admin
+admin@172.16.2.65's password:
+ExtremeXOS
+Copyright (C) 1996-2020 Extreme Networks. All rights reserved.
+This product is protected by one or more US patents listed at https://www.extremenetworks.com/company/legal/patents/ along with their foreign counterparts.
+==============================================================================
+
+
+Press the <tab> or '?' key at any time for completions.
+Remember to save your configuration changes.
+
+There have been 3 successful logins since last reboot and 0 failed logins since last successful login
+Last Successful Login was on: Mon Dec  1 14:46:47 2025
+
+
+
+Slot-1 HNB-VPN-SW.1 # show configuration
+#
+# Module devmgr configuration.
+#
+configure snmp sysName "HNB-VPN-SW"
+configure snmp sysContact "https://www.extremenetworks.com/support/"
+configure slot 1 module X440G2-24t-10G4
+configure sys-recovery-level slot 1 reset
+configure slot 2 module X440G2-24t-10G4
+configure sys-recovery-level slot 2 reset
+
+#
+# Module vlan configuration.
+#
+configure vlan default delete ports all
+configure vr VR-Default delete ports 1:1-28,2:1-28
+configure vr VR-Default add ports 1:1-28,2:1-28
+configure vlan default delete ports 1:1-28,2:1-28
+create vlan "BRC-401"
+configure vlan BRC-401 description "BRC-401"
+configure vlan BRC-401 tag 401
+create vlan "BRF-400"
+configure vlan BRF-400 description "BRF-400"
+configure vlan BRF-400 tag 400
+create vlan "Dialog-APN"
+configure vlan Dialog-APN description "Dialog-APN"
+configure vlan Dialog-APN tag 410
+create vlan "MGMT-VLAN"
+configure vlan MGMT-VLAN description "MGMT-VLAN"
+configure vlan MGMT-VLAN tag 162
+create vlan "Mobitel-APN"
+configure vlan Mobitel-APN description "Mobitel-APN"
+configure vlan Mobitel-APN tag 520
+create vlan "Test"
+configure vlan Test description "Test"
+configure vlan Test tag 2
+configure ports 1:27 auto off speed 10000 duplex full
+configure ports 1:28 auto off speed 10000 duplex full
+configure ports 2:27 auto off speed 10000 duplex full
+configure ports 2:28 auto off speed 10000 duplex full
+enable sharing 1:23 grouping 1:23,2:23 algorithm address-based L2 lacp
+enable sharing 1:24 grouping 1:24,2:24 algorithm address-based L2 lacp
+configure vlan BRC-401 add ports 1:23-24 tagged
+configure vlan BRC-401 add ports 1:3-4,2:3-4 untagged
+configure vlan BRF-400 add ports 1:23-24 tagged
+configure vlan BRF-400 add ports 1:1-2,2:1-2 untagged
+configure vlan Dialog-APN add ports 1:23-24 tagged
+configure vlan Dialog-APN add ports 1:5-6,2:5-6 untagged
+configure vlan MGMT-VLAN add ports 1:10,2:10 untagged
+configure vlan Mobitel-APN add ports 1:12,2:12 untagged
+configure vlan Test add ports 1:19-20,2:7-9,2:11,2:13-22,2:25-28 untagged
+configure vlan MGMT-VLAN ipaddress 172.16.2.65 255.255.255.0
+
+#
+# Module mcmgr configuration.
+#
+
+#
+# Module otm configuration.
+#
+
+#
+# Module fdb configuration.
+#
+
+#
+# Module rtmgr configuration.
+#
+configure iproute add 172.16.7.0 255.255.255.0 172.16.2.253
+enable icmp useredirects
+
+#
+# Module policy configuration.
+#
+
+#
+# Module aaa configuration.
+#
+configure account admin encrypted "$5$m91w/G$ajTC6fb76KUB.r.SCkTr9D66QM5jw00jhGn3UZCwGe5"
+create account admin acsysit encrypted "$5$xQWfeE$Uaun3Pka1OQmCq/kvgn0n43TMV4RrhSWODLZHczjf29"
+
+#
+# Module acl configuration.
+#
+
+
+
+configure access-list zone SYSTEM application Mrp application-priority 2
+configure access-list zone SYSTEM application IpSecurity application-priority 3
+configure access-list zone SYSTEM application FIPSnooping application-priority 4
+configure access-list zone SYSTEM application Dot1Ag application-priority 5
+configure access-list zone SYSTEM application Dot1AgDefault application-priority 6
+configure access-list zone SYSTEM application NetLogin application-priority 7
+configure access-list zone SYSTEM application FDB application-priority 8
+configure access-list zone SYSTEM application HealthCheckLAG application-priority 9
+configure access-list zone SYSTEM application IdentityManager application-priority 10
+configure access-list zone SYSTEM application VMTracking application-priority 11
+configure access-list zone SYSTEM application PolicyManager application-priority 12
+configure access-list zone SYSTEM application Policy application-priority 13
+configure access-list zone SYSTEM application L2PT_PF application-priority 14
+configure access-list zone SYSTEM application Snmp application-priority 17
+configure access-list zone SYSTEM application Telnet application-priority 18
+configure access-list zone SYSTEM application Http application-priority 19
+configure access-list zone SYSTEM application Ssh2 application-priority 20
+configure access-list zone SYSTEM application VlanManager application-priority 21
+configure access-list zone SYSTEM application SlppGuard application-priority 22
+configure access-list zone SYSTEM application ElrpHwAssist application-priority 23
+
+#
+# Module bfd configuration.
+#
+
+#
+# Module cfgmgr configuration.
+#
+
+#
+# Module dnsAnalytics configuration.
+#
+
+#
+# Module dosprotect configuration.
+#
+
+#
+# Module dot1ag configuration.
+#
+
+#
+# Module eaps configuration.
+#
+
+#
+# Module edp configuration.
+#
+
+#
+# Module elrp configuration.
+#
+
+#
+# Module ems configuration.
+#
+configure log target memory-buffer format timestamp hundredths date mm/dd/yyyy event-name condition severity
+configure log target nvram format timestamp hundredths date mm/dd/yyyy event-name condition severity
+configure log target console format timestamp hundredths date mm/dd/yyyy event-name condition severity
+
+#
+# Module epm configuration.
+#
+
+#
+# Module erps configuration.
+#
+
+#
+# Module esrp configuration.
+#
+
+#
+# Module ethoam configuration.
+#
+
+#
+# Module etmon configuration.
+#
+
+#
+# Module exsshd configuration.
+#
+enable ssh2
+
+#
+# Module hal configuration.
+#
+
+#
+# Module idMgr configuration.
+#
+
+#
+# Module ipSecurity configuration.
+#
+
+#
+# Module ipfix configuration.
+#
+
+#
+# Module iqagent configuration.
+#
+
+#
+# Module lacp configuration.
+#
+configure sharing 1:24 lacp activity-mode passive
+
+#
+# Module lldp configuration.
+#
+disable lldp ports 2:1
+disable lldp ports 2:2
+disable lldp ports 2:3
+disable lldp ports 2:4
+disable lldp ports 2:5
+disable lldp ports 2:6
+disable lldp ports 2:7
+disable lldp ports 2:8
+disable lldp ports 2:9
+disable lldp ports 2:10
+disable lldp ports 2:11
+disable lldp ports 2:12
+disable lldp ports 2:13
+disable lldp ports 2:14
+disable lldp ports 2:15
+disable lldp ports 2:16
+disable lldp ports 2:17
+disable lldp ports 2:18
+disable lldp ports 2:19
+disable lldp ports 2:20
+disable lldp ports 2:21
+disable lldp ports 2:22
+disable lldp ports 2:23
+disable lldp ports 2:24
+disable lldp ports 2:25
+disable lldp ports 2:26
+disable lldp ports 2:27
+disable lldp ports 2:28
+
+#
+# Module macsec configuration.
+#
+
+#
+# Module mrp configuration.
+#
+
+#
+# Module msdp configuration.
+#
+
+#
+# Module netLogin configuration.
+#
+
+#
+# Module netTools configuration.
+#
+enable dhcp vlan Default
+enable dhcp vlan Mgmt
+
+#
+# Module nodealias configuration.
+#
+
+#
+# Module ntp configuration.
+#
+enable ntp vr VR-Default
+configure ntp server add 192.168.150.254 vr VR-Default
+
+#
+# Module poe configuration.
+#
+
+#
+# Module rip configuration.
+#
+
+#
+# Module ripng configuration.
+#
+
+#
+# Module snmpMaster configuration.
+#
+configure snmpv3 engine-id 03:dc:e6:50:ae:c3:0c
+enable snmp access
+enable snmp access snmp-v1v2c
+enable snmp access snmpv3
+
+#
+# Module stp configuration.
+#
+configure mstp region dce650aec30c
+
+#
+# Module techSupport configuration.
+#
+
+#
+# Module telnetd configuration.
+#
+
+#
+# Module tftpd configuration.
+#
+
+#
+# Module thttpd configuration.
+#
+disable web http
+enable web https
+
+#
+# Module twamp configuration.
+#
+
+#
+# Module vmt configuration.
+#
+
+#
+# Module vsm configuration.
+#
+Slot-1 HNB-VPN-SW.2 #

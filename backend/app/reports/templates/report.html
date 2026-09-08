@@ -27,6 +27,8 @@
   .badge-low { background: #1f9d55; }
   .badge-info { background: #607d8b; }
   .topology-img { max-width: 100%; border: 1px solid #ddd; border-radius: 6px; margin-top: 10px; }
+  .raw-config { background: #1f2430; color: #d7dbe0; font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; padding: 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-word; margin-top: 8px; }
+  .device-heading { margin-top: 18px; }
 </style>
 </head>
 <body>
@@ -73,5 +75,96 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <h2>Device Inventory</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Device</th>
+        <th>Vendor</th>
+        <th>Type</th>
+        <th>Interfaces / VLANs</th>
+        <th>Rules Parsed</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in devices %}
+      <tr>
+        <td>{{ d.name }}</td>
+        <td>{{ d.vendor }}</td>
+        <td>{{ d.device_type }}</td>
+        <td>{{ d.interfaces|length }}</td>
+        <td>{{ d.rules|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Interfaces &amp; Local Networks / VLANs</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Device</th>
+        <th>Interface</th>
+        <th>Zone / VLAN</th>
+        <th>IP Address</th>
+        <th>Subnet Mask</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in interfaces %}
+      <tr>
+        <td>{{ i.device }}</td>
+        <td>{{ i.name }}</td>
+        <td>{{ i.zone or "-" }}</td>
+        <td>{{ i.ip_address or "-" }}</td>
+        <td>{{ i.subnet_mask or "-" }}</td>
+      </tr>
+      {% endfor %}
+      {% if not interfaces %}
+      <tr><td colspan="5">No interfaces/VLANs were parsed from this file.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <h2>Full Rule / Configuration Base</h2>
+  <p class="subtitle">Every rule or security-relevant setting extracted from the file, not just the ones flagged as findings above.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Device</th>
+        <th>Name</th>
+        <th>Action</th>
+        <th>Source</th>
+        <th>Destination</th>
+        <th>Service</th>
+        <th>Log</th>
+        <th>Disabled</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rules %}
+      <tr>
+        <td>{{ r.device }}</td>
+        <td>{{ r.name }}</td>
+        <td>{{ r.action }}</td>
+        <td>{{ r.source|join(", ") }}</td>
+        <td>{{ r.destination|join(", ") }}</td>
+        <td>{{ r.services|join(", ") }}</td>
+        <td>{{ "yes" if r.logging_enabled else "no" }}</td>
+        <td>{{ "yes" if r.disabled else "no" }}</td>
+      </tr>
+      {% endfor %}
+      {% if not rules %}
+      <tr><td colspan="8">No traffic/security rules were parsed from this file.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <h2>Raw Configuration (as uploaded)</h2>
+  {% for d in devices %}
+  <h3 class="device-heading">{{ d.name }}</h3>
+  <div class="raw-config">{{ d.raw_source }}</div>
+  {% endfor %}
 </body>
 </html>
