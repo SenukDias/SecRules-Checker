@@ -1,0 +1,4 @@
+name,action,source,destination,service,zone_from,zone_to,log,disabled,hitcount,description,device
+Allow-Web,allow,any,10.0.1.10,tcp/443,untrust,dmz,yes,no,120,Public web access,EDGE-FW
+Allow-Any,allow,any,any,any,untrust,trust,no,no,0,Legacy catch-all,EDGE-FW
+Allow-Telnet-Mgmt,allow,any,10.0.1.5,tcp/23,untrust,mgmt,no,no,5,Legacy telnet mgmt access,EDGE-FW

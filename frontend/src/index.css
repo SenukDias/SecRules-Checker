@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: radial-gradient(circle at top left, #1b1f29 0%, #12151c 60%);
+  min-height: 100vh;
+}
+
+.badge {
+  @apply inline-block rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+.badge-critical { @apply bg-red-600 text-white; }
+.badge-high { @apply bg-rulescope-orange text-white; }
+.badge-medium { @apply bg-yellow-600 text-white; }
+.badge-low { @apply bg-rulescope-green text-white; }
+.badge-info { @apply bg-slate-500 text-white; }
+
+.card {
+  @apply bg-rulescope-surface border border-rulescope-border rounded-xl shadow-lg;
+}
+
+.btn-primary {
+  @apply bg-rulescope-orange hover:bg-rulescope-orangeLight text-white font-semibold px-4 py-2 rounded-lg transition-colors;
+}
+.btn-secondary {
+  @apply bg-rulescope-green hover:bg-rulescope-greenLight text-white font-semibold px-4 py-2 rounded-lg transition-colors;
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RuleScope Report - {{ job.filename }}</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2430; font-size: 12px; }
+  h1 { color: #e8620c; margin-bottom: 0; }
+  h2 { color: #1f9d55; border-bottom: 2px solid #1f9d55; padding-bottom: 4px; }
+  .subtitle { color: #666; margin-top: 4px; }
+  .summary-cards { display: flex; gap: 12px; margin: 16px 0; }
+  .card { flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 10px; text-align: center; }
+  .card .count { font-size: 22px; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #1f2430; color: #fff; }
+  .sev-critical { background: #fdecea; border-left: 4px solid #d32f2f; }
+  .sev-high { background: #fff3e0; border-left: 4px solid #e8620c; }
+  .sev-medium { background: #fffde7; border-left: 4px solid #f2c94c; }
+  .sev-low { background: #e8f5e9; border-left: 4px solid #1f9d55; }
+  .sev-info { background: #eceff1; border-left: 4px solid #607d8b; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; color: #fff; }
+  .badge-critical { background: #d32f2f; }
+  .badge-high { background: #e8620c; }
+  .badge-medium { background: #b8960c; }
+  .badge-low { background: #1f9d55; }
+  .badge-info { background: #607d8b; }
+  .topology-img { max-width: 100%; border: 1px solid #ddd; border-radius: 6px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>RuleScope Security Report</h1>
+  <p class="subtitle">Source file: {{ job.filename }} &middot; Vendor: {{ job.vendor }} &middot; Generated: {{ generated_at }}</p>
+
+  <h2>Executive Summary</h2>
+  <div class="summary-cards">
+    {% for sev, count in severity_counts.items() %}
+    <div class="card sev-{{ sev }}">
+      <div class="count">{{ count }}</div>
+      <div>{{ sev|upper }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if topology_image %}
+  <h2>Network Topology</h2>
+  <img class="topology-img" src="data:image/png;base64,{{ topology_image }}" alt="Network topology">
+  {% endif %}
+
+  <h2>Findings</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Severity</th>
+        <th>Category</th>
+        <th>Device</th>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Remediation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr class="sev-{{ f.severity }}">
+        <td><span class="badge badge-{{ f.severity }}">{{ f.severity|upper }}</span></td>
+        <td>{{ f.category }}</td>
+        <td>{{ f.device_name }}</td>
+        <td>{{ f.rule_ref }}</td>
+        <td>{{ f.description }}</td>
+        <td>{{ f.remediation }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
