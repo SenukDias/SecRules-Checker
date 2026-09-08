@@ -51,6 +51,11 @@ function clusterKeyFor(node: TopologyNode): string {
   return (node.zone ?? "unzoned").toLowerCase();
 }
 
+function labelDescriptionFor(node: TopologyNode): string {
+  const detail = node.ip_address ?? node.zone ?? node.isp ?? node.vendor ?? node.device_type;
+  return [TYPE_LABEL[node.type], detail].filter(Boolean).join(" | ");
+}
+
 /** Same dendrogram layout used by the ReactFlow topology view, scaled to Isoflow's small grid-tile units. */
 function layoutTiles(data: TopologyData): Map<string, { x: number; y: number }> {
   const childrenOf = new Map<string, string[]>();
@@ -126,18 +131,19 @@ function buildModel(data: TopologyData): Model {
 
   const items = data.nodes.map((n) => ({
     id: n.id,
-    name: "",
+    name: n.label,
+    description: labelDescriptionFor(n),
     icon: iconIdFor(n),
   }));
 
-  const viewItems = data.nodes.map((n) => ({ id: n.id, tile: tiles.get(n.id)!, labelHeight: 0 }));
+  const viewItems = data.nodes.map((n) => ({ id: n.id, tile: tiles.get(n.id)!, labelHeight: n.type === "device" ? 110 : 72 }));
 
   const connectors = data.edges.map((e, i) => {
     const severity: Severity = (e.severity as Severity) ?? "info";
     return {
       id: `conn-${i}`,
       color: `sev-${severity}`,
-      width: severity === "critical" ? 3 : 2,
+      width: severity === "critical" ? 14 : severity === "high" ? 12 : 10,
       style: (severity === "critical" || severity === "high" ? "DASHED" : "SOLID") as "DASHED" | "SOLID",
       anchors: [{ id: `${e.source}-a`, ref: { item: e.source } }, { id: `${e.target}-a`, ref: { item: e.target } }],
     };
@@ -167,15 +173,17 @@ export default function IsoflowTopology({ data }: { data: TopologyData }) {
   const selectedIconUrl = selected ? ICON_URL_BY_ID.get(iconIdFor(selected)) : undefined;
 
   return (
-    <div className="h-[720px] card relative overflow-hidden">
-      <Isoflow
-        initialData={{ ...model, fitToView: true, view: "main" }}
-        editorMode="EXPLORABLE_READONLY"
-        onModelUpdated={() => {}}
-        width="100%"
-        height="100%"
-      />
-      <div className="absolute left-4 top-4 z-10 w-[min(360px,calc(100%-2rem))] rounded-xl border border-rulescope-border bg-rulescope-surface/95 p-3 shadow-2xl backdrop-blur">
+    <div className="h-[820px] card relative overflow-hidden">
+      <div className="rulescope-isoflow-canvas h-full w-full">
+        <Isoflow
+          initialData={{ ...model, fitToView: true, view: "main" }}
+          editorMode="EXPLORABLE_READONLY"
+          onModelUpdated={() => {}}
+          width="100%"
+          height="100%"
+        />
+      </div>
+      <div className="absolute left-4 top-4 z-10 w-[min(390px,calc(100%-2rem))] rounded-xl border border-rulescope-border bg-rulescope-surface/95 p-3 shadow-2xl backdrop-blur">
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-rulescope-muted">Components</p>
           <p className="text-[10px] text-rulescope-muted">{data.nodes.length} items</p>
@@ -192,12 +200,12 @@ export default function IsoflowTopology({ data }: { data: TopologyData }) {
                 key={n.id}
                 onClick={() => setSelected(nodeById.get(n.id) ?? null)}
                 aria-label={`Preview ${n.label}`}
-                className={`group flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition ${
+                className={`group flex min-w-0 items-center gap-3 rounded-lg border px-3 py-2 text-left transition ${
                   isSelected ? "border-rulescope-orange" : "border-rulescope-border hover:border-rulescope-green"
                 }`}
               >
-                <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-md bg-rulescope-bg/70">
-                  {iconUrl && <img src={iconUrl} alt="" className="h-7 w-7 object-contain drop-shadow-[0_8px_8px_rgba(0,0,0,0.45)]" />}
+                <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-md bg-rulescope-bg/70">
+                  {iconUrl && <img src={iconUrl} alt="" className="h-11 w-11 object-contain drop-shadow-[0_8px_8px_rgba(0,0,0,0.45)]" />}
                   <span
                     className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border border-rulescope-bg"
                     style={{ background: SEVERITY_COLOR[severity] }}

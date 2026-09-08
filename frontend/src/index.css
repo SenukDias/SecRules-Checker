@@ -32,3 +32,25 @@ body {
 .btn-secondary {
   @apply bg-rulescope-green hover:bg-rulescope-greenLight text-white font-semibold px-4 py-2 rounded-lg transition-colors;
 }
+
+.rulescope-isoflow-canvas img[src*="networkMapIcons/previews"] {
+  width: 160px !important;
+  max-width: none !important;
+  filter: drop-shadow(0 18px 14px rgba(0, 0, 0, 0.32));
+}
+
+.rulescope-isoflow-canvas svg line,
+.rulescope-isoflow-canvas svg path,
+.rulescope-isoflow-canvas svg polyline {
+  vector-effect: non-scaling-stroke;
+}
+
+.rulescope-isoflow-canvas p,
+.rulescope-isoflow-canvas .ql-editor {
+  color: #111827 !important;
+}
+
+.rulescope-isoflow-canvas .ql-editor {
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+}
