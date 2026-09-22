@@ -1,8 +1,8 @@
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 
 # System deps required by WeasyPrint (PDF rendering) and psycopg
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
+    libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev \
     libcairo2 shared-mime-info fonts-liberation \
     build-essential libpq-dev \
     && rm -rf /var/lib/apt/lists/*
