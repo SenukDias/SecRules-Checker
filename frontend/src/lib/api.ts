@@ -1,17 +1,40 @@
 import axios from "axios";
-import { keycloak } from "./auth";
+import { AUTH_DISABLED, keycloak } from "./auth";
 import { Severity } from "./theme";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000",
 });
 
-api.interceptors.request.use((config) => {
-  if (keycloak.token) {
-    config.headers.Authorization = `Bearer ${keycloak.token}`;
+api.interceptors.request.use(async (config) => {
+  if (AUTH_DISABLED) return config;
+
+  try {
+    await keycloak.updateToken(30);
+  } catch {
+    // If refresh fails, force login before protected requests proceed.
+    await keycloak.login();
+    throw new Error("Authentication refresh failed");
   }
+
+  if (!keycloak.token) {
+    await keycloak.login();
+    throw new Error("Missing authentication token");
+  }
+
+  config.headers.Authorization = `Bearer ${keycloak.token}`;
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (!AUTH_DISABLED && error?.response?.status === 401) {
+      await keycloak.login();
+    }
+    return Promise.reject(error);
+  }
+);
 
 export interface JobSummary {
   id: string;

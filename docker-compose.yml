@@ -75,7 +75,7 @@ services:
   worker:
     build: ./backend
     restart: unless-stopped
-    command: ["celery", "-A", "celery_app.celery_app", "worker", "--loglevel=INFO"]
+    command: ["celery", "-A", "celery_app.celery_app", "worker", "--loglevel=INFO", "--queues=rulescope"]
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-rulescope}:${POSTGRES_PASSWORD:-rulescope}@postgres:5432/${POSTGRES_DB:-rulescope}
@@ -98,6 +98,7 @@ services:
         VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL:-http://localhost:8081}
         VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-rulescope}
         VITE_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_FRONTEND_CLIENT_ID:-rulescope-frontend}
+        VITE_AUTH_DISABLED: ${VITE_AUTH_DISABLED:-false}
     restart: unless-stopped
     ports:
       - "3000:80"

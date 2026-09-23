@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Trash2 } from "lucide-react";
+import axios from "axios";
 import { JobSummary, jobsApi, StatsSummary, statsApi } from "../lib/api";
 import RiskGauge from "../components/kpi/RiskGauge";
 import SeverityDonut from "../components/kpi/SeverityDonut";
@@ -44,8 +45,20 @@ export default function Dashboard() {
       await jobsApi.upload(file);
       if (fileInput.current) fileInput.current.value = "";
       refresh();
-    } catch {
-      setError("Upload failed. Check file format/size and try again.");
+    } catch (err) {
+      let message = "Upload failed. Check file format/size and try again.";
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const detail = err.response?.data && typeof err.response.data === "object" ? (err.response.data as { detail?: unknown }).detail : undefined;
+        if (status === 401) {
+          message = "Authentication is missing or expired. Please sign in again and retry.";
+        } else if (typeof detail === "string" && detail.trim()) {
+          message = `Upload failed: ${detail}`;
+        } else if (status) {
+          message = `Upload failed (HTTP ${status}).`;
+        }
+      }
+      setError(message);
     } finally {
       setUploading(false);
     }

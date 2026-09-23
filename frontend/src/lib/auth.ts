@@ -11,15 +11,17 @@ export const keycloak = new Keycloak({
 
 export async function initKeycloak(): Promise<void> {
   if (AUTH_DISABLED) return;
-  try {
-    await keycloak.init({ onLoad: "login-required", pkceMethod: "S256" });
-    // Keep the token fresh in the background.
-    setInterval(() => {
-      keycloak.updateToken(60).catch(() => keycloak.login());
-    }, 30000);
-  } catch {
-    // If Keycloak is unreachable, let the app render its own error state.
+  const authenticated = await keycloak.init({ onLoad: "login-required", pkceMethod: "S256" });
+
+  if (!authenticated) {
+    await keycloak.login();
+    return;
   }
+
+  // Keep the token fresh in the background.
+  setInterval(() => {
+    keycloak.updateToken(60).catch(() => keycloak.login());
+  }, 30000);
 }
 
 export function hasRole(role: string): boolean {
