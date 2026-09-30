@@ -133,6 +133,8 @@
     <thead>
       <tr>
         <th>Device</th>
+        <th>Reference</th>
+        <th>Position</th>
         <th>Name</th>
         <th>Action</th>
         <th>Source</th>
@@ -146,7 +148,10 @@
       {% for r in rules %}
       <tr>
         <td>{{ r.device }}</td>
+        <td>{{ r.id }}</td>
+        <td>{{ r.position }}</td>
         <td>{{ r.name }}</td>
+          <tr><td colspan="10">No traffic/security rules were parsed from this file.</td></tr>
         <td>{{ r.action }}</td>
         <td>{{ r.source|join(", ") }}</td>
         <td>{{ r.destination|join(", ") }}</td>

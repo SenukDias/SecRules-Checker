@@ -36,20 +36,23 @@ class NipperReportParserTests(unittest.TestCase):
         report = """<html><head><meta name="generator" content="Nipper from Titania"></head><body>
 <table summary="Table 1: Findings summary table"><tbody>
 <tr><th>Finding ID</th><th>Title</th><th>Risk</th><th>Section</th></tr>
-<tr><td>NSA-FLTR-007</td><td>Rules Allow Administrative Access</td><td><font class="rate-crit">Critical</font></td><td><a href="#T325">2.3</a></td></tr>
+<tr><td>NSA-PRTCL-015</td><td>STP BPDU Guard Not Enabled Globally</td><td><font class="rate-high">High</font></td><td><a href="#T325">2.3</a></td></tr>
 </tbody></table>
 <div class="reportsection"><div class="reportsectiontitlecritical"><a id="T325">2.3 Rules Allow Administrative Access</a></div>
-<div class="reportsectionbody"><h3>2.3.1 Finding</h3><p>Administrative rules allow broad access.</p>
+<div class="reportsectionbody"><p>Nipper determined that the device setting was insecure on NOVUS-SLDC-R1.</p>
+<h3>2.3.1 Finding</h3><p>Administrative rules allow broad access.</p>
 <h3>2.3.2 Impact</h3><p>Attackers may reach management services.</p>
 <h3>2.3.4 Recommendation</h3><p>Restrict access to trusted hosts.</p></div></div>
 </body></html>"""
         model = NipperReportParser().parse(report, "audit.html")
 
         self.assertEqual(model.devices[0].vendor, "nipper_report")
+        self.assertEqual(model.devices[0].name, "NOVUS-SLDC-R1")
+        self.assertEqual(model.devices[0].device_type, "switch")
         self.assertEqual(len(model.imported_findings), 1)
         finding = model.imported_findings[0]
-        self.assertEqual(finding.severity, "critical")
-        self.assertEqual(finding.rule_ref, "NSA-FLTR-007 (2.3)")
+        self.assertEqual(finding.severity, "high")
+        self.assertEqual(finding.rule_ref, "NSA-PRTCL-015 (2.3)")
         self.assertIn("Attackers may reach management services", finding.description)
         self.assertEqual(finding.remediation, "Restrict access to trusted hosts.")
 

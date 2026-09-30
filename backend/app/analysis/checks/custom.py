@@ -55,7 +55,7 @@ def run_custom_checks(model: NetworkModel, custom_rules: list[CustomRule]) -> li
                         FindingResult(
                             severity=custom.severity,
                             category=custom.category,
-                            rule_ref=rule.name or rule.id,
+                            rule_ref=rule.id,
                             device_name=device.name,
                             description=custom.description_template.format(rule_name=rule.name, device=device.name),
                             remediation=custom.remediation,

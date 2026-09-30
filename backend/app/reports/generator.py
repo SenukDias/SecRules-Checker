@@ -116,10 +116,12 @@ def render_excel(job: Job, findings: list[Finding]) -> bytes:
     _add_sheet(
         wb,
         "Rule Base",
-        ["Device", "Name", "Action", "Source", "Destination", "Service", "Logging", "Disabled", "Description"],
+        ["Device", "Reference", "Position", "Name", "Action", "Source", "Destination", "Service", "Logging", "Disabled", "Description"],
         [
             [
                 r.get("device"),
+                r.get("id"),
+                r.get("position"),
                 r.get("name"),
                 r.get("action"),
                 ", ".join(r.get("source") or []),
@@ -131,7 +133,7 @@ def render_excel(job: Job, findings: list[Finding]) -> bytes:
             ]
             for r in _rule_rows(devices)
         ],
-        widths=(20, 20, 10, 24, 24, 20, 10, 10, 40),
+        widths=(20, 24, 10, 20, 10, 24, 24, 20, 10, 10, 40),
     )
 
     raw_ws = wb.create_sheet("Raw Configuration")

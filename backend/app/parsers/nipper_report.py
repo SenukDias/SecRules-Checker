@@ -161,7 +161,12 @@ class NipperReportParser(BaseParser):
                 )
             )
 
-        device_type = "firewall" if re.search(r"\bASA\s*\d*\b", raw_text, re.IGNORECASE) else "router"
+        if re.search(r"\bASA\s*\d*\b", raw_text, re.IGNORECASE):
+            device_type = "firewall"
+        elif any(re.search(r"\b(?:STP|BPDU|VTP|switch port|trunking)\b", item["title"], re.IGNORECASE) for item in html_parser.findings):
+            device_type = "switch"
+        else:
+            device_type = "router"
         device = Device(name=device_name, vendor=self.vendor, device_type=device_type)
         return NetworkModel(devices=[device], imported_findings=imported_findings)
 
@@ -170,5 +175,8 @@ def _device_name(raw_text: str, filename: str) -> str:
     match = re.search(r"Nipper identified\s+\d+\s+filter rules on\s+([\w.-]+)", raw_text, re.IGNORECASE)
     if match:
         return match.group(1)
+    match = re.search(r"Nipper determined\b.*?\bon\s+([A-Z][A-Z0-9.-]+)", raw_text, re.DOTALL)
+    if match:
+        return match.group(1).rstrip(".")
     match = re.search(r"^hostname\s+(\S+)", raw_text, re.IGNORECASE | re.MULTILINE)
     return match.group(1) if match else filename.rsplit(".", 1)[0]

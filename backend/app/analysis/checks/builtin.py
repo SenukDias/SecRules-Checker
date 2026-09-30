@@ -41,6 +41,13 @@ def _is_any(tokens: list[str]) -> bool:
 def _is_any_service(tokens: list[str]) -> bool:
     return any(t.lower() in ANY_SERVICE_TOKENS for t in tokens)
 
+def _rule_ref(rule: Rule) -> str:
+    return rule.id
+
+
+def _rule_label(rule: Rule) -> str:
+    return f"{rule.name or rule.id} (position {rule.position})"
+
 
 def check_any_any_allow(device: Device, rule: Rule) -> FindingResult | None:
     if rule.action != RuleAction.ALLOW or rule.disabled:
@@ -49,9 +56,9 @@ def check_any_any_allow(device: Device, rule: Rule) -> FindingResult | None:
         return FindingResult(
             severity="critical",
             category="Overly Permissive Rule",
-            rule_ref=rule.name or rule.id,
+            rule_ref=_rule_ref(rule),
             device_name=device.name,
-            description=f"Rule '{rule.name}' allows ANY source to ANY destination on ANY service.",
+            description=f"Rule '{_rule_label(rule)}' allows ANY source to ANY destination on ANY service.",
             remediation="Restrict source, destination, and service to the minimum required scope.",
         )
     return None
@@ -61,16 +68,16 @@ def check_insecure_protocol(device: Device, rule: Rule) -> list[FindingResult]:
     if rule.action != RuleAction.ALLOW or rule.disabled:
         return []
     findings = []
-    for svc in rule.services:
+    for svc in dict.fromkeys(rule.services):
         key = svc.lower()
         if key in INSECURE_SERVICES:
             findings.append(
                 FindingResult(
                     severity="high",
                     category="Insecure Protocol",
-                    rule_ref=rule.name or rule.id,
+                    rule_ref=_rule_ref(rule),
                     device_name=device.name,
-                    description=f"Rule '{rule.name}' permits {INSECURE_SERVICES[key]} ({svc}).",
+                    description=f"Rule '{_rule_label(rule)}' permits {INSECURE_SERVICES[key]} ({svc}).",
                     remediation="Replace with an encrypted/authenticated alternative (e.g. SSH, SFTP, HTTPS, SNMPv3) or remove the rule.",
                 )
             )
@@ -83,9 +90,9 @@ def check_no_logging(device: Device, rule: Rule) -> FindingResult | None:
     return FindingResult(
         severity="low",
         category="Missing Logging",
-        rule_ref=rule.name or rule.id,
+        rule_ref=_rule_ref(rule),
         device_name=device.name,
-        description=f"Allow rule '{rule.name}' does not have logging enabled.",
+        description=f"Allow rule '{_rule_label(rule)}' does not have logging enabled.",
         remediation="Enable logging on allow rules to support audit trails and incident investigation.",
     )
 
@@ -96,9 +103,9 @@ def check_unused_rule(device: Device, rule: Rule) -> FindingResult | None:
     return FindingResult(
         severity="info",
         category="Unused Rule",
-        rule_ref=rule.name or rule.id,
+        rule_ref=_rule_ref(rule),
         device_name=device.name,
-        description=f"Rule '{rule.name}' has a zero hit count and appears unused.",
+        description=f"Rule '{_rule_label(rule)}' has a zero hit count and appears unused.",
         remediation="Review and remove unused rules to reduce attack surface and simplify auditing.",
     )
 
@@ -109,16 +116,16 @@ def check_internet_exposed_mgmt(device: Device, rule: Rule) -> list[FindingResul
     if not _is_any(rule.source):
         return []
     findings = []
-    for svc in rule.services:
+    for svc in dict.fromkeys(rule.services):
         if svc.lower() in SENSITIVE_MGMT_PORTS:
             findings.append(
                 FindingResult(
                     severity="critical",
                     category="Internet-Exposed Management",
-                    rule_ref=rule.name or rule.id,
+                    rule_ref=_rule_ref(rule),
                     device_name=device.name,
                     description=(
-                        f"Rule '{rule.name}' exposes {SENSITIVE_MGMT_PORTS[svc.lower()]} "
+                        f"Rule '{_rule_label(rule)}' exposes {SENSITIVE_MGMT_PORTS[svc.lower()]} "
                         "management/remote-access service to ANY source (internet-facing)."
                     ),
                     remediation="Restrict management access to specific trusted source IPs/VPN, never ANY.",
@@ -139,11 +146,11 @@ def check_shadowed_rule(device: Device, rules_seen: list[Rule], rule: Rule) -> F
             return FindingResult(
                 severity="medium",
                 category="Shadowed Rule",
-                rule_ref=rule.name or rule.id,
+                rule_ref=_rule_ref(rule),
                 device_name=device.name,
                 description=(
-                    f"Rule '{rule.name}' (position {rule.position}) is shadowed by earlier rule "
-                    f"'{earlier.name}' (position {earlier.position}) and will never be evaluated."
+                    f"Rule '{_rule_label(rule)}' is shadowed by earlier rule "
+                    f"'{_rule_label(earlier)}' and will never be evaluated."
                 ),
                 remediation="Remove or reorder the shadowed rule so its intended traffic is actually matched.",
             )
@@ -156,15 +163,17 @@ def check_redundant_rules(device: Device, rules: list[Rule]) -> list[FindingResu
     for rule in rules:
         if rule.disabled:
             continue
-        sig = (rule.action, tuple(sorted(rule.source)), tuple(sorted(rule.destination)), tuple(sorted(rule.services)))
+        scope = rule.name if device.vendor in {"cisco_asa", "cisco_ios"} else None
+        sig = (scope, rule.action, tuple(sorted(rule.source)), tuple(sorted(rule.destination)), tuple(sorted(rule.services)))
         if sig in seen:
+            earlier = seen[sig]
             findings.append(
                 FindingResult(
                     severity="low",
                     category="Redundant Rule",
-                    rule_ref=rule.name or rule.id,
+                    rule_ref=_rule_ref(rule),
                     device_name=device.name,
-                    description=f"Rule '{rule.name}' duplicates rule '{seen[sig].name}' (identical source/destination/service/action).",
+                    description=f"Rule '{_rule_label(rule)}' duplicates rule '{_rule_label(earlier)}' (identical source/destination/service/action).",
                     remediation="Remove duplicate rules to simplify the rule base and reduce audit overhead.",
                 )
             )
