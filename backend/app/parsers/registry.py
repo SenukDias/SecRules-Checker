@@ -9,10 +9,12 @@ from app.parsers.fortigate import FortiGateParser
 from app.parsers.generic_csv import GenericCsvParser
 from app.parsers.juniper import JuniperParser
 from app.parsers.juniper_switch import JuniperSwitchParser
+from app.parsers.nipper_report import NipperReportParser
 from app.parsers.paloalto import PaloAltoParser
 
 # Order matters: more specific detectors first, generic_csv/heuristic last.
 PARSERS: list[type[BaseParser]] = [
+    NipperReportParser,
     CiscoASAParser,
     CiscoIOSParser,
     PaloAltoParser,

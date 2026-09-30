@@ -10,7 +10,7 @@ exports a branded PDF/HTML/Excel report.
 - **Backend**: FastAPI + Celery/Redis for async parse/analyze/report jobs.
 - **Auth**: Keycloak (OIDC) with `admin` / `analyst` / `viewer` realm roles.
 - **Storage**: Postgres for jobs/findings/custom rules.
-- **Parsers**: Cisco ASA, Cisco IOS, Palo Alto (set-format), FortiGate, Juniper (set-format), and a generic CSV template — pluggable architecture (`backend/app/parsers/`) for adding more vendors.
+- **Parsers**: Cisco ASA (including network/service objects and groups), Cisco IOS, Palo Alto (set-format), FortiGate, Juniper (set-format), Nipper HTML audit reports, and a generic CSV template — pluggable architecture (`backend/app/parsers/`) for adding more vendors.
 
 ## Quick start
 
@@ -26,6 +26,7 @@ Sample rule exports are in `samples/`:
 - `generic_template_sample.csv` — universal CSV template for any vendor not yet natively supported.
 
 Upload either via the dashboard to see parsing, findings, topology, and report export end-to-end.
+Nipper HTML reports can also be uploaded directly; their finding IDs, severities, detail, and recommendations are added to the same findings and report workflow.
 
 ## Generic CSV template (for unsupported vendors)
 Columns: `name, action, source, destination, service` (required), plus optional

@@ -7,7 +7,7 @@ from app.parsers._cisco_common import consume_address, parse_acl_tokens
 from app.parsers.base import BaseParser
 
 _ACL_RE = re.compile(
-    r"^access-list\s+(?P<acl>\S+)\s+extended\s+(?P<action>permit|deny)\s+(?P<rest>.+)$",
+    r"^access-list\s+(?P<acl>\S+)\s+(?:(?P<kind>extended|standard)\s+)?(?P<action>permit|deny)\s+(?P<rest>.+)$",
     re.IGNORECASE,
 )
 _IFACE_RE = re.compile(r"^interface\s+(?P<name>\S+)", re.IGNORECASE)
@@ -65,10 +65,18 @@ class CiscoASAParser(BaseParser):
             if m := _ACL_RE.match(stripped):
                 position = len(rules) + 1
                 tokens = m.group("rest").split()
-                parsed = parse_acl_tokens(tokens)
+                if (m.group("kind") or "standard").lower() == "standard":
+                    _, address_end = consume_address(tokens, 0)
+                    parsed = parse_acl_tokens(["ip", *tokens[:address_end], "any", *tokens[address_end:]])
+                else:
+                    parsed = parse_acl_tokens(tokens)
                 parsed["source"] = _expand_network(parsed["source"], network_objects, network_groups)
                 parsed["destination"] = _expand_network(parsed["destination"], network_objects, network_groups)
-                parsed["services"] = _acl_services(tokens, service_groups, parsed["service"])
+                parsed["services"] = (
+                    [parsed["service"]]
+                    if (m.group("kind") or "standard").lower() == "standard"
+                    else _acl_services(tokens, service_groups, parsed["service"])
+                )
                 parsed["services"] = [_normalize_service(service) for service in parsed["services"]]
                 rule_name = m.group("acl")
                 rules.append(
@@ -201,6 +209,8 @@ def _service_group_line(line: str, protocol: str) -> list[str]:
 
 def _acl_services(tokens: list[str], service_groups: dict[str, list[str]], fallback: str) -> list[str]:
     _, index = consume_address(tokens, 1)
+    if index >= len(tokens):
+        return [fallback]
     _, index = consume_address(tokens, index)
     while index < len(tokens):
         if tokens[index].lower() == "object-group" and index + 1 < len(tokens):

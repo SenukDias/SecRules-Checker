@@ -55,10 +55,21 @@ class Device:
 
 
 @dataclass
+class ImportedFinding:
+    severity: str
+    category: str
+    rule_ref: str
+    device_name: str
+    description: str
+    remediation: str
+
+
+@dataclass
 class NetworkModel:
     """Result of parsing one uploaded export - typically a single device."""
 
     devices: list[Device] = field(default_factory=list)
+    imported_findings: list[ImportedFinding] = field(default_factory=list)
 
     def all_rules(self) -> list[tuple[Device, Rule]]:
         return [(d, r) for d in self.devices for r in d.rules]

@@ -12,7 +12,8 @@ SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
 def analyze(model: NetworkModel, db: Session, job_id: str) -> list[Finding]:
     custom_rules = db.query(CustomRule).all()
 
-    results = run_builtin_checks(model)
+    results = list(model.imported_findings)
+    results.extend(run_builtin_checks(model))
     results.extend(run_custom_checks(model, custom_rules))
     results.sort(key=lambda f: SEVERITY_ORDER.get(f.severity, 99))
 
