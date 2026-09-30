@@ -1,4 +1,4 @@
-import { BaseEdge, EdgeProps, getStraightPath } from "reactflow";
+import { BaseEdge, EdgeProps, getStraightPath } from "@xyflow/react";
 import { Severity, SEVERITY_COLOR } from "../../lib/theme";
 
 export default function GradientEdge({ id, sourceX, sourceY, targetX, targetY, data }: EdgeProps) {

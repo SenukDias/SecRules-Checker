@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import ReactFlow, { Background, Controls, Edge, MiniMap, Node } from "reactflow";
-import "reactflow/dist/style.css";
+import { Background, Controls, Edge, MiniMap, Node, ReactFlow } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import { TopologyGraph as TopologyData, TopologyNode } from "../lib/api";
 import IsoNode from "./nodes/IsoNode";
 import GradientEdge from "./edges/GradientEdge";

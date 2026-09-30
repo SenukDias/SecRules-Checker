@@ -11,24 +11,25 @@
   },
   "dependencies": {
     "@isoflow/isopacks": "^0.0.10",
+    "@xyflow/react": "^12.12.0",
     "axios": "^1.7.7",
     "isoflow": "^1.1.1",
-    "keycloak-js": "^25.0.6",
-    "lucide-react": "^1.42.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2",
-    "reactflow": "^11.11.4",
-    "recharts": "^2.15.4"
+    "keycloak-js": "^26.2.4",
+    "lucide-react": "^1.49.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.20",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.6.1",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.11",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.5"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
   }
 }

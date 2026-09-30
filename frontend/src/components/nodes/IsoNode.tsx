@@ -1,5 +1,5 @@
 import { Cable, Cloud, Layers, Network, Router, ShieldAlert, ShieldCheck } from "lucide-react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position } from "@xyflow/react";
 import { Severity, SEVERITY_COLOR, SEVERITY_GLOW, zoneColor } from "../../lib/theme";
 import { TopologyNode } from "../../lib/api";
 

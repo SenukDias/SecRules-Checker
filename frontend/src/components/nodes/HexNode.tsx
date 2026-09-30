@@ -1,5 +1,5 @@
 import { Globe, HardDrive, Layers, Router } from "lucide-react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position } from "@xyflow/react";
 import { Severity, SEVERITY_COLOR, SEVERITY_GLOW } from "../../lib/theme";
 import { TopologyNode } from "../../lib/api";
 

@@ -20,7 +20,10 @@ export default function TrendSparkline({ trend }: { trend: Array<{ date: string;
           <XAxis dataKey="date" hide />
           <Tooltip
             contentStyle={{ background: "#1b1f29", border: "1px solid #2c3244", borderRadius: 8, color: "#f5f7fa" }}
-            labelFormatter={(label) => new Date(label).toLocaleDateString()}
+            labelFormatter={(label) => {
+              const date = new Date(String(label));
+              return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString();
+            }}
           />
           <Area type="monotone" dataKey="jobs" stroke="#e8620c" fill="url(#trendGradient)" strokeWidth={2} />
         </AreaChart>
